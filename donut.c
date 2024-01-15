@@ -1,5 +1,6 @@
 // donut.c by Andy Sloane (@a1k0n)
 // https://gist.github.com/a1k0n/8ea6516b4946ab36348fb61703dc3194
+// Bruno: added ANSI RGB rendering
 
 #include "ansi_graphics.h"
 #include <stdint.h>
@@ -118,12 +119,11 @@ void main() {
           t += d;
 
           if (t > 8*256) {
-            GL_setpixelhere(0,0,0);
+            GL_setpixelhere(0,0,255-(j*255/GL_height));
             break;
           } else if (d < 2) {
-            int N = lz >> 9;
+            int N = lz >> 5;
             N = N < 0 ? 0 : N;
-	    N = N << 4;
             GL_setpixelhere(N,N,0);
             nnormals++;
             break;
