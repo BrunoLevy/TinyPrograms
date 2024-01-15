@@ -8,6 +8,10 @@
 #include <stdio.h>
 #include <math.h>
 
+// You can define GL_width and GL_height before
+// #including ansi_graphics.h in case the plain
+// old 80x25 pixels does not suffice.
+
 #ifndef GL_width
 #define GL_width  80
 #endif
