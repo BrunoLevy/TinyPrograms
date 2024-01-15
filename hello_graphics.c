@@ -4,9 +4,9 @@ int main() {
     GL_init();
     for(int i=0; i<25; ++i) {
         for(int j=0; j<80; ++j) {
-            int r = (24-i)*4;
-            int g = i*4;
-            int b = j*2;
+            int r = (24-i)*5;
+            int g = i*5;
+            int b = j*3;
             GL_setpixel(j,i,r,g,b);
         }
     }

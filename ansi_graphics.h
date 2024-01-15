@@ -8,8 +8,13 @@
 #include <stdio.h>
 #include <math.h>
 
+#ifndef GL_width
 #define GL_width  80
+#endif
+
+#ifndef GL_height
 #define GL_height 25
+#endif
 
 /**
  * \brief Sets the current graphics position
@@ -66,7 +71,10 @@ static inline void GL_clear() {
  *  or each time graphics should be cleared
  */
 static inline void GL_init() {
-    printf("\033[H"); // home
+    printf(
+	   "\033[H"     // home
+	   "\033[?25l"  // hide cursor
+    ); 
     GL_clear();
 }
 
@@ -76,7 +84,8 @@ static inline void GL_init() {
  */
 static inline void GL_terminate() {
     GL_restore_default_colors();
-    GL_gotoxy(0,25);
+    GL_gotoxy(0,GL_height);
+    printf("\033[?25h"); // show cursor
 }
 
 /***************************************************************/
