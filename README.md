@@ -1,5 +1,5 @@
 # TinyPrograms
-A collection of tiny programs from various sources, for testing softwores. Includes my simple library to
+A collection of tiny programs from various sources, for testing softcores. Includes my simple library to
 render 80x25 and 80x50 "graphics" in an Ansi terminal (this makes big pixels, but they have 16 million colors !)
 
 # Links
