@@ -1,6 +1,6 @@
 /* 
- * FEMTORV32 - FEMTOSOC demo program:
  * Displaying a rotating RISCV logo
+ * Bruno Levy, 2020
  */ 
 
 #include <stdio.h>

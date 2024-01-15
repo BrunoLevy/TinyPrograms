@@ -1,4 +1,6 @@
 #include "ansi_graphics.h"
+// Small demo for Ansi graphics
+// Bruno Levy, January 2024
 
 int main() {
     GL_init();

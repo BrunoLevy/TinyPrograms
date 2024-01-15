@@ -1,5 +1,7 @@
 /*
- Computes and displays the Mandelbrot set on the OLED display.
+ Computes and displays the Mandelbrot set in the terminal using
+ ANSI codes.
+ Bruno Levy, 2020
 */
 
 #include <stdio.h>

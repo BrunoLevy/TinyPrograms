@@ -1,3 +1,8 @@
+/*
+ * Displays rotating squares
+ * Bruno Levy, 2020-2024
+ */
+
 #include "ansi_graphics.h"
 #include <stdlib.h>
 #include <unistd.h>

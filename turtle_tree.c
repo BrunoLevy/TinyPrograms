@@ -1,3 +1,8 @@
+/*
+ * Displays a tree using turtle graphics
+ * Bruno Levy, Jan 2024
+ */ 
+
 #define GL_width 80
 #define GL_height 25
 #include "ansi_graphics.h"

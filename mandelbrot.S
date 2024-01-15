@@ -1,10 +1,9 @@
-# Computes and displays the Mandelbrot set on the terminal.
-# Needs NRV_IO_UART to be enabled. 
-#
-# To access it, use:
-#   miniterm.py --dtr=0 /dev/ttyUSB1 115200
-#   or screen /dev/ttyUSB1 115200 (<ctrl> a \ to exit)
-
+# Computes and displays the Mandelbrot set on the terminal
+# RISC-V assembly
+# Needs a putchar routine 
+# You can remove the IO_LEDS stuff (it is there so that
+# one can see whether there is activity on the processor)
+# Bruno Levy, 2020
 
 # Base address of memory-mapped IO,
 # Loaded into gp at startup
