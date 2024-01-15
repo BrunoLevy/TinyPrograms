@@ -7,8 +7,10 @@ render 80x25 and 80x50 "graphics" in an Ansi terminal (this makes big pixels, bu
 # How to compile
 
 Just `gcc <program name>.c -o <program name>` and that's all. Some programs (`pi.c`,
-`tinyraytracer.c`) will need to be linked with the math library (`gcc
-<program name>.c -lm -o <program name>`).
+`tinyraytracer.c`) will need to be linked with the math library (`gcc <program name>.c -lm -o <program name>`).
+And of course, if you are cross-compiling (for your own RISC-V
+softcore), you will need to install the RISC-V toolchain and use
+`riscv-gcc` instead (more information [here](https://github.com/BrunoLevy/learn-fpga))
 
 # Links
 - Fabrice Bellard's [webpage on Pi](https://bellard.org/pi/) and [pi.c](https://bellard.org/pi/pi.c)
