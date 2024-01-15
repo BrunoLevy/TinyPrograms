@@ -2,6 +2,9 @@
 A collection of tiny programs from various sources, for testing softcores. Includes my simple library to
 render 80x25 and 80x50 "graphics" in an Ansi terminal (this makes big pixels, but they have 16 million colors !)
 
+![](Images/TinyPrograms.png)
+
+
 # Links
 - Fabrice Bellard's [webpage on Pi](https://bellard.org/pi/) and [pi.c](https://bellard.org/pi/pi.c)
 - Dmitry Sokolov's [TinyRaytracer](https://github.com/ssloy/tinyraytracer)
