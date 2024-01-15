@@ -177,8 +177,15 @@ int digits(int n) {
 void main() {
     printf("\npi = 3.");
     for(int n=1; ;n+=9) {
-       printf("%d",digits(n));
+       int D = digits(n);
+       
+       // Stop at Feynman point (comment out to get more decimals)
+       if(D == 998372978) {
+	  printf("99 etc...\n");
+	  break;
+       }
+       
+       printf("%d",D);
        fflush(stdout);
-       // if(n > 36) break;
     }
 }
