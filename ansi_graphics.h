@@ -223,9 +223,9 @@ typedef struct {
 } Turtle;
     
 static inline void Turtle_init(Turtle* T) {
-    T->x = 39;
-    T->y = 11;
-    T->angle = 90;
+    T->x = GL_width/2;
+    T->y = GL_height/2;
+    T->angle = -90;
     T->pendown = 1;
     T->R = 255;
     T->G = 255;
