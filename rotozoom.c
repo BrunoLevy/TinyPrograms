@@ -32,14 +32,13 @@ unsigned char logo[16][16] = {
    {7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7}
 };
 
-#define GL_width  40
-#define GL_height 40
+#define GL_width  64
+#define GL_height 50
 
 /* 
  * ANSI color codes:
  * https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences
  */
-
 
 #define ANSIRGB(R,G,B) "\033[48;2;" #R ";"  #G ";" #B "m  "
 
@@ -101,7 +100,7 @@ void main() {
     for(;;) {
         printf("\033[H"); // reset cursor position
 
-        int scaling = (sintab[frame&63]+400)*3;
+        int scaling = (sintab[frame&63]+300)*3;
         int Ux = scaling*sintab[frame & 63];         
         int Uy = scaling*sintab[(frame + 16) & 63];  
         int Vx = -Uy;                                
@@ -115,7 +114,7 @@ void main() {
 	    int Y = Y0;
 	    for(int x=0; x<GL_width; ++x) {
 	        unsigned char col = logo[(Y >> 18)&15][(X >> 18)&15];
-	        printf(col == last_col ? "  " : cmap[col]);
+	        printf("%s", col == last_col ? "  " : cmap[col]);
 	        last_col = col;
 	        X += Ux;
 	        Y += Uy;
@@ -127,7 +126,7 @@ void main() {
 	}
         ++frame;
 #ifdef __linux__       
-        usleep(20000);
+        usleep(30000);
 #endif
 //       if(frame > 20) break;
     }
