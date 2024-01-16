@@ -20,6 +20,12 @@
     #include <stdio.h>
     #include <math.h>
 
+    // Bruno TODO: find a way of:
+    // [x] get rid of sqrtf()
+    // [ ] implementing mul_mod() using int32 arithmetics 
+    // [ ] replace log() and fmod() by int32 arithmetics
+
+
 //#define RV32_FASTCODE __attribute((section(".fastcode")))
 #define RV32_FASTCODE
 
@@ -86,8 +92,12 @@ int is_prime(int n)
     if ((n % 2) == 0)
     return 0;
 
-    r = (int) (sqrt(n));
-    for (i = 3; i <= r; i += 2)
+    // initial program was doing that:
+    // r = (int) (sqrt(n));
+    // for (i = 3; i <= r; i += 2)
+
+    // I think it is more efficient to do that:
+    for(i=3; i*i<=n; i += 2)
     if ((n % i) == 0)
         return 0;
     return 1;
@@ -109,7 +119,6 @@ int digits(int n) {
     double sum;
 
     N = (int) ((n + 20) * log(10) / log(2));
-
     sum = 0;
 
     for (a = 3; a <= (2 * N); a = next_prime(a)) {

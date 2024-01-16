@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <unistd.h>
 
 // You can define GL_width and GL_height before
 // #including ansi_graphics.h in case the plain
@@ -91,6 +92,15 @@ static inline void GL_terminate() {
     GL_gotoxy(0,GL_height);
     printf("\033[?25h"); // show cursor
 }
+
+/**
+ * \brief Flushes pending graphic operations
+ * \details Flushes the output buffer of stdout
+ */
+static inline void GL_flush() {
+   fflush(stdout);
+}
+
 
 /***************************************************************/
 

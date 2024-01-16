@@ -31,10 +31,17 @@ void tree(Turtle* T, int L, int depth, int max_depth) {
 int main() {
     Turtle T;
     GL_init();
-    Turtle_init(&T);
-    Turtle_pen_up(&T);
-    Turtle_backward(&T, GL_height/2);
-    Turtle_pen_down(&T);
-    tree(&T,5,6,6);
+    for(;;)
+    for(int depth=1; depth<6; ++depth) {
+       GL_clear();
+       Turtle_init(&T);
+       Turtle_pen_up(&T);
+       Turtle_backward(&T, GL_height/2);
+       Turtle_pen_down(&T);
+       tree(&T,5,depth,6);
+       GL_flush();
+       usleep(300000);
+    }
+   
     GL_terminate();
 }
