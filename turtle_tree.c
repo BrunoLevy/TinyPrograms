@@ -5,6 +5,7 @@
 
 #define GL_width 80
 #define GL_height 25
+#define GL_USE_TURTLE
 #include "ansi_graphics.h"
 
 void tree(Turtle* T, int L, int depth, int max_depth) {

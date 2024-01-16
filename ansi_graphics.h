@@ -228,6 +228,10 @@ static inline void GL_line(
 
 /***************************************************************/
 
+#ifdef GL_USE_TURTLE
+
+#include "sintab.h" // Ugly !!!
+
 typedef struct {
     int x;        // in [0..79]
     int y;        // in [0..24]
@@ -263,9 +267,15 @@ static inline void Turtle_pen_color(Turtle* T, int R, int G, int B) {
 static inline void Turtle_forward(Turtle* T, int distance) {
     int last_x = T->x;
     int last_y = T->y;
-    float alpha = (float)(T->angle) * M_PI / 180.0;
-    T->x += (int)(cos(alpha) * (float)(distance));
-    T->y += (int)(sin(alpha) * (float)(distance));
+    int a = T->angle;
+    while(a < 0) {
+        a += 360;
+    }
+    while(a > 360) {
+        a -= 360;
+    }
+    T->x += (costab[a] * distance) / 256;
+    T->y += (sintab[a] * distance) / 256;
     if(T->pendown) {
         GL_line(last_x, last_y, T->x, T->y, T->R, T->G, T->B);
     }
@@ -282,3 +292,5 @@ static inline void Turtle_turn_right(Turtle* T, int delta_angle) {
 static inline void Turtle_turn_left(Turtle* T, int delta_angle) {
     Turtle_turn_right(T, -delta_angle);
 }
+
+#endif
