@@ -1,3 +1,5 @@
+// A "doom fire" demo, by Dmitry Sokolov
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
