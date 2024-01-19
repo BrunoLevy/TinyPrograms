@@ -6,7 +6,7 @@
 #define GL_width 80
 #define GL_height 25
 #define GL_USE_TURTLE
-#include "ansi_graphics.h"
+#include "GL_tty.h"
 
 void tree(Turtle* T, int L, int depth, int max_depth, int branch_angle) {
     int branch_L = L-1;
@@ -42,8 +42,7 @@ int main() {
             Turtle_backward(&T, GL_height/2);
             Turtle_pen_down(&T);
             tree(&T,6,depth,13,26);
-            GL_flush();
-            usleep(300000);
+            GL_end_frame(30);
         }
     }
    

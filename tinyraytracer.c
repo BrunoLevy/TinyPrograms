@@ -4,12 +4,17 @@
 /* Original tinyraytracer: https://github.com/ssloy/tinyraytracer  */
 
 #include <math.h>
-// Default 80x25 is really too small, make it a bit bigger (you'll
-// need to enlarge the TTY window to see something)
 
-#define GL_width  120
+
+// It is 80x50 (rather than 80x25) because GL_scan() and GL_fscan()
+// use "double resolution" "pixels".
+//
+// Default 80x50 may feel to small, you can use larger value (and enlarge
+// your terminal window).
+
+#define GL_width  80
 #define GL_height 50
-#include "ansi_graphics.h"
+#include "GL_tty.h"
 
 /*******************************************************************/
 
@@ -18,79 +23,6 @@ typedef int BOOL;
 static inline float max(float x, float y) { return x>y?x:y; }
 static inline float min(float x, float y) { return x<y?x:y; }
 
-/*******************************************************************/
-
-// If you want to adapt tinyraytracer to your own platform, there are
-// mostly two macros and two functions to write:
-//   graphics_width
-//   graphics_height
-//   graphics_init()
-//   graphics_set_pixel()
-//
-// You can also write the following functions (or leave them empty if
-// you do not need them):
-//   graphics_terminate()
-//   stats_begin_frame()
-//   stats_begin_pixel()
-//   stats_end_pixel()
-//   stats_end_frame()
-
-
-// Size of the screen
-// Replace with your own variables or values
-#define graphics_width  GL_width
-#define graphics_height GL_height
-
-// Replace with your own stuff to initialize graphics
-static inline void graphics_init() {
-   GL_init();
-}
-
-// Replace with your own stuff to terminate graphics or leave empty
-// Here I send <ctrl><D> to the UART, to exit the simulation in Verilator,
-// it is captured by special code in RTL/DEVICES/uart.v
-static inline void graphics_terminate() {
-   GL_terminate();
-}
-
-// Replace with your own code.
-void graphics_set_pixel(int x, int y, float r, float g, float b) {
-   r = max(0.0f, min(1.0f, r));
-   g = max(0.0f, min(1.0f, g));
-   b = max(0.0f, min(1.0f, b));
-   int R = (int)(255.0f * r);
-   int G = (int)(255.0f * g);
-   int B = (int)(255.0f * b);
-   GL_setpixel(x,y,R,G,B);
-}
-
-
-// Begins statistics collection for current frame.
-// Leave emtpy if not needed.
-static inline void stats_begin_frame() {
-}
-
-// Begins statistics collection for current pixel
-// Leave emtpy if not needed.
-// There are these two levels because on some
-// femtorv32 cores (quark, tachyon), the clock tick counter does not
-// have sufficient bits and will wrap during the time taken by
-// rendering a frame (up to several minutes).
-static inline void stats_begin_pixel() {
-}
-
-// Ends statistics collection for current pixel
-// Leave emtpy if not needed.
-static inline void stats_end_pixel() {
-}
-
-// Ends statistics collection for current frame
-// and displays result.
-// Leave emtpy if not needed.
-static inline void stats_end_frame() {
-}
-
-// Normally you will not need to modify anything beyond that point.
 /*******************************************************************/
 
 typedef struct { float x,y,z; }   vec3;
@@ -341,26 +273,6 @@ vec3 cast_ray(
 }
 
 
-void render(Sphere* spheres, int nb_spheres, Light* lights, int nb_lights) {
-   const float fov  = M_PI/3.;
-   stats_begin_frame();
-   for (int j = 0; j<graphics_height; j++) { // actual rendering loop
-      for (int i = 0; i<graphics_width; i++) {
-	stats_begin_pixel();
-	float dir_x =  (i + 0.5) - graphics_width/2.;
-	float dir_y = -(j + 0.5) + graphics_height/2.; // this flips the image.
-	float dir_z = -graphics_height/(2.*tan(fov/2.));
-	vec3 C = cast_ray(
-	   make_vec3(0,0,0), vec3_normalize(make_vec3(dir_x, dir_y, dir_z)),
-	   spheres, nb_spheres, lights, nb_lights, 0
-	);
-	graphics_set_pixel(i,j,C.x,C.y,C.z);
-	stats_end_pixel();
-      }
-   }
-   stats_end_frame();
-}
-
 int nb_spheres = 4;
 Sphere spheres[4];
 
@@ -391,10 +303,26 @@ void init_scene() {
     lights[2] = make_Light(make_vec3( 30, 20,  30), 1.7);
 }
 
+
+void render(int x, int y, float* r, float* g, float* b) {
+   const float fov  = M_PI/3.;
+   float dir_x =  (x + 0.5) - GL_width/2.;
+   float dir_y = -(y + 0.5) + GL_height/2.; // this flips the image.
+   float dir_z = -GL_height/(2.*tan(fov/2.));
+   vec3 C = cast_ray(
+       make_vec3(0,0,0), vec3_normalize(make_vec3(dir_x, dir_y, dir_z)),
+       spheres, nb_spheres, lights, nb_lights, 0
+   );
+   *r=C.x;
+   *g=C.y;
+   *b=C.z;
+}
+
+
 int main() {
     init_scene();
-    graphics_init();
-    render(spheres, nb_spheres, lights, nb_lights);
-    graphics_terminate();
+    GL_init();
+    GL_fscan(GL_width, GL_height, render);
+    GL_terminate();
     return 0;
 }

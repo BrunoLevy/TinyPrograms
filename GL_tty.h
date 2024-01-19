@@ -7,7 +7,17 @@
 
 #include <stdio.h>
 #include <math.h>
-#include <unistd.h>
+#include <stdint.h>
+
+#if defined(__linux__) || defined(_WIN32) || defined(__APPLE__)
+#define BIGCPU  // we are compiling for a real machine
+#else
+#define TINYCPU // we are compiling for a softwore
+#endif
+
+#ifdef __linux__
+#include <unistd.h> // for usleep()
+#endif
 
 // You can define GL_width and GL_height before
 // #including ansi_graphics.h in case the plain
@@ -38,8 +48,44 @@ static inline void GL_gotoxy(int x, int y) {
  *  call GL_gotoxy(). If you want to draw individual pixels in an
  *  arbitrary order, use GL_setpixel(x,y,R,G,B)
  */
-static inline void GL_setpixelhere(int R, int G, int B) {
-    printf("\033[48;2;%d;%d;%dm ",R,G,B); // set background color, print space 
+static inline void GL_setpixelhere(uint8_t R, uint8_t G, uint8_t B) {
+    // set background color, print space 
+    printf("\033[48;2;%d;%d;%dm ",(int)R,(int)G,(int)B); 
+}
+
+
+/**
+ * \brief Draws two "pixels" at the current
+ *  cursor position and advances the current cursor
+ *  position.
+ * \details Characters are roughly twice as high as wide.
+ *  To generate square pixels, this function draws two pixels in
+ *  the same character, using the special lower-half white / upper-half
+ *  black character, and setting the background and foreground colors.
+ */
+static inline void GL_setpixelshere(
+    uint8_t r1, uint8_t g1, uint8_t b1,
+    uint8_t r2, uint8_t g2, uint8_t b2
+) {
+    if((r2 == r1) && (g2 == g1) && (b2 == b1)) {
+	GL_setpixelhere(r1,g1,b1);
+    } else {
+	printf("\033[48;2;%d;%d;%dm",(int)r1,(int)g1,(int)b1);	   	   
+	printf("\033[38;2;%d;%d;%dm",(int)r2,(int)g2,(int)b2);
+	// https://www.w3.org/TR/xml-entity-names/025.html
+	// https://onlineunicodetools.com/convert-unicode-to-utf8
+	// https://copypastecharacter.com/
+	printf("\xE2\x96\x83");
+    }
+}
+
+/**
+ * \brief Moves the cursor position to the next line.
+ * \details Background and foreground colors are set to black.
+ */
+static inline void GL_newline() {
+    printf("\033[38;2;0;0;0m");	   
+    printf("\033[48;2;0;0;0m\n");
 }
 
 /**
@@ -48,7 +94,7 @@ static inline void GL_setpixelhere(int R, int G, int B) {
  * \param[in] y typically in 0,24
  * \param[in] R , G , B the RGB color of the pixel, in [0..255]
  */
-static inline void GL_setpixel(int x, int y, int R, int G, int B) {
+static inline void GL_setpixel(int x, int y, uint8_t R, uint8_t G, uint8_t B) {
     GL_gotoxy(x,y);
     GL_setpixelhere(R,G,B);
 }
@@ -72,14 +118,20 @@ static inline void GL_clear() {
 }
 
 /**
+ * \brief Moves current drawing position to top-left corner
+ * \see GL_setpixelhere() and GL_setpixelshere()
+ */
+static inline void GL_home() {
+    printf("\033[H");
+}
+
+/**
  * \brief Call this function before starting drawing graphics 
  *  or each time graphics should be cleared
  */
 static inline void GL_init() {
-    printf(
-	   "\033[H"     // home
-	   "\033[?25l"  // hide cursor
-    ); 
+    printf("\033[?25l"); // hide cursor
+    GL_home();
     GL_clear();
 }
 
@@ -97,10 +149,91 @@ static inline void GL_terminate() {
  * \brief Flushes pending graphic operations
  * \details Flushes the output buffer of stdout
  */
-static inline void GL_flush() {
+static inline void GL_end_frame(int delay) {
+    // only flush if we are on a big machine, with true stdio support
+    // otherwise does nothing (because our small MCU io lib is not buffered)
+#ifdef BIGCPU    
    fflush(stdout);
+#ifdef __linux__   
+   usleep(delay * 10000);
+#endif
+#endif   
 }
 
+typedef void (*GL_pixelfunc)(int x, int y, uint8_t* r, uint8_t* g, uint8_t* b);
+typedef void (*GL_fpixelfunc)(int x, int y, float* r, float* g, float* b);
+
+/**
+ * \brief Draws an image by calling a user-specified function for each pixel.
+ * \param[in] width , height dimension of the image in square pixels
+ * \param[in] do_pixel the user function to be called for each pixel 
+ *  (a "shader"), that determines the (integer) components r,g,b of 
+ *   the pixel's color.
+ * \details Uses half-charater pixels.
+ */
+static inline void GL_scan(
+    int width, int height, GL_pixelfunc do_pixel
+) {
+    uint8_t r1, g1, b1;
+    uint8_t r2, g2, b2;
+    GL_home(); 
+    for (int j = 0; j<height; j+=2) { 
+	for (int i = 0; i<width; i++) {
+	    do_pixel(i,j  , &r1, &g1, &b1);
+	    do_pixel(i,j+1, &r2, &g2, &b2);
+	    GL_setpixelshere(r1,g1,b1,r2,g2,b2);
+	    if(i == width-1) {
+		GL_newline();
+	    }
+	}
+    }
+}
+
+/**
+ * brief Converts a floating point value to a byte.
+ * \param[in] the floating point value in [0,1]
+ * \return the byte, in [0,255]
+ * \details the input value is clamped to [0,1]
+ */ 
+static inline uint8_t GL_ftoi(float f) {
+    f = (f < 0.0f) ? 0.0f : f;
+    f = (f > 1.0f) ? 1.0f : f;
+    return (uint8_t)(255.0f * f);
+}
+
+/**
+ * \brief Draws an image by calling a user-specified function for each pixel.
+ * \param[in] width , height dimension of the image in square pixels
+ * \param[in] do_pixel the user function to be called for each pixel 
+ *  (a "shader"), that determines the (floating-point) components 
+ *  fr,fg,fb of the pixel's color.
+ * \details Uses half-charater pixels.
+ */
+static inline void GL_fscan(
+    int width, int height, GL_fpixelfunc do_pixel
+) {
+    float fr1, fg1, fb1;
+    float fr2, fg2, fb2;
+    uint8_t r1, g1, b1;
+    uint8_t r2, g2, b2;
+    GL_home();
+    for (int j = 0; j<height; j+=2) { 
+	for (int i = 0; i<width; i++) {
+	    do_pixel(i,j  , &fr1, &fg1, &fb1);
+	    r1 = GL_ftoi(fr1);
+	    g1 = GL_ftoi(fg1);
+	    b1 = GL_ftoi(fb1);	    
+	    do_pixel(i,j+1, &fr2, &fg2, &fb2);
+	    r2 = GL_ftoi(fr2);
+	    g2 = GL_ftoi(fg2);
+	    b2 = GL_ftoi(fb2);	    
+	    GL_setpixelshere(r1,g1,b1,r2,g2,b2);
+	    if(i == width-1) {
+		GL_newline();
+	    }
+	}
+    }
+}
 
 /***************************************************************/
 
@@ -115,7 +248,8 @@ static inline void GL_flush() {
 #define YMIN 0
 #define YMAX (GL_height-1)
 
-#define code(x,y) ((x) < XMIN) | (((x) > XMAX)<<1) | (((y) < YMIN)<<2) | (((y) > YMAX)<<3) 
+#define code(x,y) \
+    ((x) < XMIN) | (((x) > XMAX)<<1) | (((y) < YMIN)<<2) | (((y) > YMAX)<<3) 
 
 /***************************************************************/
 

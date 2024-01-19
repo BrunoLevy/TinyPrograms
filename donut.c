@@ -2,7 +2,7 @@
 // https://gist.github.com/a1k0n/8ea6516b4946ab36348fb61703dc3194
 // Bruno: added ANSI RGB rendering
 
-#include "ansi_graphics.h"
+#include "GL_tty.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -166,8 +166,7 @@ void main() {
           niters++;
         }
       }
-      GL_restore_default_colors();
-      puts("");
+      GL_newline();
     }
 //    printf("%d iterations %d lit pixels\x1b[K", niters, nnormals);
 //    fflush(stdout);
@@ -181,7 +180,7 @@ void main() {
     R(6, cAcB, cAsB);
     R(6, sAcB, sAsB);
 
-    usleep(15000);
-    printf("\r\x1b[23A");
+    GL_end_frame(1);
+    GL_home();
   }
 }

@@ -3,9 +3,9 @@
  * Bruno Levy, 2020-2024
  */
 
-#include "ansi_graphics.h"
-#include <stdlib.h>
-#include <unistd.h>
+#include "GL_tty.h"
+//#include <stdlib.h>
+//#include <unistd.h>
 
 int sintab[64] = {
    0,25,49,74,97,120,142,162,181,197,212,225,236,244,251,254,
@@ -58,7 +58,7 @@ int main() {
 
         GL_flush();
        
-        usleep(30000);
+        // usleep(30000);
 	
 	++frame;
     }
