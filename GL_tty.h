@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #if defined(__linux__) || defined(_WIN32) || defined(__APPLE__)
 #define BIGCPU  // we are compiling for a real machine
@@ -63,7 +64,7 @@ static inline void GL_setpixelRGBhere(uint8_t R, uint8_t G, uint8_t B) {
  *  the same character, using the special lower-half white / upper-half
  *  black character, and setting the background and foreground colors.
  */
-static inline void GL_setpixelsRGBhere(
+static inline void GL_set2pixelsRGBhere(
     uint8_t r1, uint8_t g1, uint8_t b1,
     uint8_t r2, uint8_t g2, uint8_t b2
 ) {
@@ -72,6 +73,30 @@ static inline void GL_setpixelsRGBhere(
     } else {
 	printf("\033[48;2;%d;%d;%dm",(int)r1,(int)g1,(int)b1);	   	   
 	printf("\033[38;2;%d;%d;%dm",(int)r2,(int)g2,(int)b2);
+	// https://www.w3.org/TR/xml-entity-names/025.html
+	// https://onlineunicodetools.com/convert-unicode-to-utf8
+	// https://copypastecharacter.com/
+	printf("\xE2\x96\x83");
+    }
+}
+
+#define GL_RGB(R,G,B) #R ";" #G ";" #B 
+
+static inline void GL_setpixelIhere(
+    const char** cmap, int c
+) {
+    // set background color, print space 
+    printf("\033[48;2;%sm ",cmap[c]); 
+}
+
+static inline void GL_set2pixelsIhere(
+    const char** cmap, int c1, int c2
+) {
+    if(c1 == c2) {
+	GL_setpixelIhere(cmap, c1);
+    } else {
+	printf("\033[48;2;%sm",cmap[c1]);	   	   
+	printf("\033[38;2;%sm",cmap[c2]);
 	// https://www.w3.org/TR/xml-entity-names/025.html
 	// https://onlineunicodetools.com/convert-unicode-to-utf8
 	// https://copypastecharacter.com/
@@ -94,7 +119,9 @@ static inline void GL_newline() {
  * \param[in] y typically in 0,24
  * \param[in] R , G , B the RGB color of the pixel, in [0..255]
  */
-static inline void GL_setpixelRGB(int x, int y, uint8_t R, uint8_t G, uint8_t B) {
+static inline void GL_setpixelRGB(
+    int x, int y, uint8_t R, uint8_t G, uint8_t B
+) {
     GL_gotoxy(x,y);
     GL_setpixelRGBhere(R,G,B);
 }
@@ -119,7 +146,7 @@ static inline void GL_clear() {
 
 /**
  * \brief Moves current drawing position to top-left corner
- * \see GL_setpixelRGBhere() and GL_setpixelsRGBhere()
+ * \see GL_setpixelRGBhere() and GL_set2pixelsRGBhere()
  */
 static inline void GL_home() {
     printf("\033[H");
@@ -146,18 +173,17 @@ static inline void GL_terminate() {
 }
 
 /**
- * \brief Flushes pending graphic operations
- * \details Flushes the output buffer of stdout
+ * \brief Flushes pending graphic operations and waits a bit
  */
-static inline void GL_end_frame(int delay) {
+static inline void GL_swapbuffers() {
     // only flush if we are on a big machine, with true stdio support
     // otherwise does nothing (because our small MCU io lib is not buffered)
 #ifdef BIGCPU    
    fflush(stdout);
-#ifdef __linux__   
-   usleep(delay * 10000);
 #endif
-#endif   
+#ifdef __linux__   
+   usleep(3000);
+#endif
 }
 
 typedef void (*GL_pixelfunc_RGB)(int x, int y, uint8_t* r, uint8_t* g, uint8_t* b);
@@ -181,7 +207,7 @@ static inline void GL_scan_RGB(
 	for (int i = 0; i<width; i++) {
 	    do_pixel(i,j  , &r1, &g1, &b1);
 	    do_pixel(i,j+1, &r2, &g2, &b2);
-	    GL_setpixelsRGBhere(r1,g1,b1,r2,g2,b2);
+	    GL_set2pixelsRGBhere(r1,g1,b1,r2,g2,b2);
 	    if(i == width-1) {
 		GL_newline();
 	    }
@@ -227,7 +253,7 @@ static inline void GL_scan_RGBf(
 	    r2 = GL_ftoi(fr2);
 	    g2 = GL_ftoi(fg2);
 	    b2 = GL_ftoi(fb2);	    
-	    GL_setpixelsRGBhere(r1,g1,b1,r2,g2,b2);
+	    GL_set2pixelsRGBhere(r1,g1,b1,r2,g2,b2);
 	    if(i == width-1) {
 		GL_newline();
 	    }

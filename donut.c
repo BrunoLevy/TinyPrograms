@@ -180,7 +180,7 @@ void main() {
     R(6, cAcB, cAsB);
     R(6, sAcB, sAsB);
 
-    GL_end_frame(1);
+    GL_swapbuffers();
     GL_home();
   }
 }
