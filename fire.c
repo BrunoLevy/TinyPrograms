@@ -77,7 +77,7 @@ int main() {
 
         for (int j = 0; j<HEIGHT; j++) {      // show the buffer
             for (int i = 0; i<WIDTH; i++)
-                printf(palette[fire[i+j*WIDTH]]);
+                printf("%s",palette[fire[i+j*WIDTH]]);
             printf("\033[49m\n");
         }
 

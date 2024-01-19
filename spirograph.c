@@ -56,9 +56,7 @@ int main() {
         GL_line(pts[4],pts[5],pts[6],pts[7],R,G,B);
         GL_line(pts[6],pts[7],pts[0],pts[1],R,G,B);
 
-        GL_flush();
-       
-        // usleep(30000);
+        GL_end_frame(3);
 	
 	++frame;
     }

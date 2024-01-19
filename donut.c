@@ -119,12 +119,12 @@ void main() {
           t += d;
 
           if (t > 8*256) {
-            GL_setpixelhere(0,0,255-(j*255/GL_height));
+            GL_setpixelRGBhere(0,0,255-(j*255/GL_height));
             break;
           } else if (d < 2) {
             int N = lz >> 5;
             N = N < 0 ? 0 : N;
-            GL_setpixelhere(N,N,0);
+            GL_setpixelRGBhere(N,N,0);
             nnormals++;
             break;
           }

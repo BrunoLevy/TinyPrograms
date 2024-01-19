@@ -46,9 +46,9 @@ static inline void GL_gotoxy(int x, int y) {
  * \details Typically used by programs that draw all pixels sequentially,
  *  like a raytracer. After each line, one can either printf("\n") or
  *  call GL_gotoxy(). If you want to draw individual pixels in an
- *  arbitrary order, use GL_setpixel(x,y,R,G,B)
+ *  arbitrary order, use GL_setpixelRGB(x,y,R,G,B)
  */
-static inline void GL_setpixelhere(uint8_t R, uint8_t G, uint8_t B) {
+static inline void GL_setpixelRGBhere(uint8_t R, uint8_t G, uint8_t B) {
     // set background color, print space 
     printf("\033[48;2;%d;%d;%dm ",(int)R,(int)G,(int)B); 
 }
@@ -63,12 +63,12 @@ static inline void GL_setpixelhere(uint8_t R, uint8_t G, uint8_t B) {
  *  the same character, using the special lower-half white / upper-half
  *  black character, and setting the background and foreground colors.
  */
-static inline void GL_setpixelshere(
+static inline void GL_setpixelsRGBhere(
     uint8_t r1, uint8_t g1, uint8_t b1,
     uint8_t r2, uint8_t g2, uint8_t b2
 ) {
     if((r2 == r1) && (g2 == g1) && (b2 == b1)) {
-	GL_setpixelhere(r1,g1,b1);
+	GL_setpixelRGBhere(r1,g1,b1);
     } else {
 	printf("\033[48;2;%d;%d;%dm",(int)r1,(int)g1,(int)b1);	   	   
 	printf("\033[38;2;%d;%d;%dm",(int)r2,(int)g2,(int)b2);
@@ -94,9 +94,9 @@ static inline void GL_newline() {
  * \param[in] y typically in 0,24
  * \param[in] R , G , B the RGB color of the pixel, in [0..255]
  */
-static inline void GL_setpixel(int x, int y, uint8_t R, uint8_t G, uint8_t B) {
+static inline void GL_setpixelRGB(int x, int y, uint8_t R, uint8_t G, uint8_t B) {
     GL_gotoxy(x,y);
-    GL_setpixelhere(R,G,B);
+    GL_setpixelRGBhere(R,G,B);
 }
 
 /**
@@ -119,7 +119,7 @@ static inline void GL_clear() {
 
 /**
  * \brief Moves current drawing position to top-left corner
- * \see GL_setpixelhere() and GL_setpixelshere()
+ * \see GL_setpixelRGBhere() and GL_setpixelsRGBhere()
  */
 static inline void GL_home() {
     printf("\033[H");
@@ -181,7 +181,7 @@ static inline void GL_scan(
 	for (int i = 0; i<width; i++) {
 	    do_pixel(i,j  , &r1, &g1, &b1);
 	    do_pixel(i,j+1, &r2, &g2, &b2);
-	    GL_setpixelshere(r1,g1,b1,r2,g2,b2);
+	    GL_setpixelsRGBhere(r1,g1,b1,r2,g2,b2);
 	    if(i == width-1) {
 		GL_newline();
 	    }
@@ -227,7 +227,7 @@ static inline void GL_fscan(
 	    r2 = GL_ftoi(fr2);
 	    g2 = GL_ftoi(fg2);
 	    b2 = GL_ftoi(fb2);	    
-	    GL_setpixelshere(r1,g1,b1,r2,g2,b2);
+	    GL_setpixelsRGBhere(r1,g1,b1,r2,g2,b2);
 	    if(i == width-1) {
 		GL_newline();
 	    }
@@ -330,12 +330,12 @@ static inline void GL_line(
     if(dy > dx) {
 	int ex = (dx << 1) - dy;
 	for(int u=0; u<dy; u++) {
-	    GL_setpixel(x,y,R,G,B);
+	    GL_setpixelRGB(x,y,R,G,B);
 	    y += sy;
 	    if(ex >= 0)  {
 		x++;
 		ex -= dy << 1;
-		GL_setpixel(x,y,R,G,B);
+		GL_setpixelRGB(x,y,R,G,B);
 	    }
 	    while(ex >= 0)  {
 		x++;
@@ -347,12 +347,12 @@ static inline void GL_line(
     } else {
 	int ey = (dy << 1) - dx;
 	for(int u=0; u<dx; u++) {
-	    GL_setpixel(x,y,R,G,B);
+	    GL_setpixelRGB(x,y,R,G,B);
 	    x++;
 	    while(ey >= 0) {
 		y += sy;
 		ey -= dx << 1;
-		GL_setpixel(x,y,R,G,B);
+		GL_setpixelRGB(x,y,R,G,B);
 	    }
 	    ey += dy << 1;
 	}
