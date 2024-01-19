@@ -9,7 +9,7 @@ int main() {
             int r = (24-i)*5;
             int g = i*5;
             int b = j*3;
-            GL_setpixel(j,i,r,g,b);
+            GL_setpixelRGB(j,i,r,g,b);
         }
     }
     GL_terminate();

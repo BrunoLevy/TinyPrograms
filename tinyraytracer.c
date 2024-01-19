@@ -6,7 +6,7 @@
 #include <math.h>
 
 
-// It is 80x50 (rather than 80x25) because GL_scan() and GL_fscan()
+// It is 80x50 (rather than 80x25) because GL_scan_RGB() and GL_scan_RGBf()
 // use "double resolution" "pixels".
 //
 // Default 80x50 may feel to small, you can use larger value (and enlarge
@@ -322,7 +322,7 @@ void render(int x, int y, float* r, float* g, float* b) {
 int main() {
     init_scene();
     GL_init();
-    GL_fscan(GL_width, GL_height, render);
+    GL_scan_RGBf(GL_width, GL_height, render);
     GL_terminate();
     return 0;
 }

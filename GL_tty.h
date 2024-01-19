@@ -160,8 +160,8 @@ static inline void GL_end_frame(int delay) {
 #endif   
 }
 
-typedef void (*GL_pixelfunc)(int x, int y, uint8_t* r, uint8_t* g, uint8_t* b);
-typedef void (*GL_fpixelfunc)(int x, int y, float* r, float* g, float* b);
+typedef void (*GL_pixelfunc_RGB)(int x, int y, uint8_t* r, uint8_t* g, uint8_t* b);
+typedef void (*GL_pixelfunc_RGBf)(int x, int y, float* r, float* g, float* b);
 
 /**
  * \brief Draws an image by calling a user-specified function for each pixel.
@@ -171,8 +171,8 @@ typedef void (*GL_fpixelfunc)(int x, int y, float* r, float* g, float* b);
  *   the pixel's color.
  * \details Uses half-charater pixels.
  */
-static inline void GL_scan(
-    int width, int height, GL_pixelfunc do_pixel
+static inline void GL_scan_RGB(
+    int width, int height, GL_pixelfunc_RGB do_pixel
 ) {
     uint8_t r1, g1, b1;
     uint8_t r2, g2, b2;
@@ -209,8 +209,8 @@ static inline uint8_t GL_ftoi(float f) {
  *  fr,fg,fb of the pixel's color.
  * \details Uses half-charater pixels.
  */
-static inline void GL_fscan(
-    int width, int height, GL_fpixelfunc do_pixel
+static inline void GL_scan_RGBf(
+    int width, int height, GL_pixelfunc_RGBf do_pixel
 ) {
     float fr1, fg1, fb1;
     float fr2, fg2, fb2;
