@@ -5,6 +5,7 @@
 
 #define GL_width 80
 #define GL_height 25
+#define GL_FPS 2
 #define GL_USE_TURTLE
 #include "GL_tty.h"
 

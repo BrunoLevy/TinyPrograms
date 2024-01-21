@@ -2,6 +2,7 @@
 
 #define GL_width  80
 #define GL_height 30
+#define GL_FPS 150
 #include "GL_tty.h"
 
 const char* palette[256] = {

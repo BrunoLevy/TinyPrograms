@@ -10,6 +10,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#ifndef GL_FPS
+#define GL_FPS 30
+#endif
+
 #if defined(__linux__) || defined(_WIN32) || defined(__APPLE__)
 #define BIGCPU  // we are compiling for a real machine
 #else
@@ -182,7 +186,7 @@ static inline void GL_swapbuffers() {
    fflush(stdout);
 #endif
 #ifdef __linux__   
-   usleep(30000);
+   usleep(1000000/GL_FPS);
 #endif
 }
 
