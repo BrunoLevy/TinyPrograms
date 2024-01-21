@@ -83,6 +83,6 @@ void main() {
 	    Y0 += Vy;
 	}
         ++frame;
-        GL_end_frame(3);
+        GL_swapbuffers();
     }
 }

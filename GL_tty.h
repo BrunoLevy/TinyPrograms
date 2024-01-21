@@ -182,7 +182,7 @@ static inline void GL_swapbuffers() {
    fflush(stdout);
 #endif
 #ifdef __linux__   
-   usleep(3000);
+   usleep(30000);
 #endif
 }
 

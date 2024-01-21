@@ -42,7 +42,7 @@ int main() {
             Turtle_backward(&T, GL_height/2);
             Turtle_pen_down(&T);
             tree(&T,6,depth,13,26);
-            GL_end_frame(30);
+            GL_swapbuffers();
         }
     }
    
