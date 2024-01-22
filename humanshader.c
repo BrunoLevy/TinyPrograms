@@ -3,74 +3,103 @@
 // (using a computer is clearly not as fun, but it is interesting to have
 //  a small not too computationally expensive raytracing program that
 //  can run on small softcores for PGAs).
+// Using the 16-bits version with no divide from here: https://www.shadertoy.com/view/XflXDs
 
 #define GL_width  71
 #define GL_height 40
 #include "GL_tty.h"
 
-// Note: on the worksheet on the webside, x|n means x/(10^n)
-// (it took me a while to understand).
-// Replaced most of them with shifts
-// /10    -> /8
-// /100   -> /128
-// /1000  -> /1024
-// /10000 -> /8192
-
 void human_shader(
     int x, int y, uint8_t* r_out, uint8_t* g_out, uint8_t* b_out
 ) {
+    int R, B;
 
-A:
-    int u = x - 36;
-    int v = 18 - y;
-    int h = u*u+v*v;
-    if(h < 200) goto B;
-    else if(v < 0) goto C;
-    else goto D;
+    //-------------------------    
+    // Section A (2 MUL, 3 ADD)
+    //-------------------------    
+    int u = x-36;
+    int v = 18-y;
+    int u2 = u*u;
+    int v2 = v*v;
+    int h = u2 + v2;
+    //-------------------------  
+    
+    if( h < 200 ) 
+    {
+        //-------------------------------------
+        // Section B, Sphere (4/7 MUL, 5/9 ADD)
+        //-------------------------------------
+        R = 420;
+        B = 520;
 
-B:
-    int R = 420;
-    int B = 520;
-    int t = 5000 + 8*h;
-    int p = (t*u) >> 7; 
-    int q = (t*v) >> 7; 
-    int s = 2*q;
-    int w = ((1000+p-s)>>7) + 8;
-    if(w > 0) R += w*w;
-    int o = s + 2200;
-    R = (R*o) >> 13;
-    B = (B*o) >> 13;
-    if(p > -q) {
-        w = (p+q) >> 3;
-        R += w;
-        B += w;
+        int t = 5200 + h*8;
+        int p = (t*u)>>7;
+        int q = (t*v)>>7;
+        
+        // bounce light
+        int w = 18 + (((p*5-q*13))>>9);
+        if( w>0 ) R += w*w;
+        
+        // sky light / ambient occlusion
+        int o = q + 900;
+        R = (R*o)>>12;
+        B = (B*o)>>12;
+
+        // sun/key light
+        if( p > -q )
+        {
+            int w = (p+q)>>3;
+            R += w;
+            B += w;
+        }
+        //-------------------------  
+	}
+    else if( v<0 )
+    {
+        //-------------------------------------
+        // Section C, Ground (5/9 MUL, 6/9 ADD)
+        //-------------------------------------
+        R = 150 + 2*v;
+        B = 50;
+        
+        int p = h + 8*v2;
+        int c = 240*(-v) - p;
+
+        // sky light / ambient occlusion
+        if( c>1200 )
+        {
+            int o = (25*c)>>3;
+            o = (c*(7840-o)>>9) - 8560;
+            R = (R*o)>>10;
+            B = (B*o)>>10;
+        }
+
+        // sun/key light with soft shadow
+        int r = c + u*v;
+        int d = 3200 - h - 2*r;
+        if( d>0 ) R += d;
+        //-------------------------  
     }
-    goto E;
-C:
-    R = 150 + 2*v;
-    B = 50;
-    p = h + 8*v*v;
-    int c = -240*v-p;
-    if(c > 1200) {
-        o = (6*c)/10;     // keep /10 here
-        o = c*(1500-o);
-        o = (o/100)-8360; // keep /100 here
-        R = (R*o) >> 10;
-        B = (B*o) >> 10;
+    else
+    {
+        //------------------------------
+        // Section D, Sky (1 MUL, 2 ADD)
+        //------------------------------
+        int c = x + 4*y;
+        R = 132 + c;
+        B = 192 + c;
+        //-------------------------  
     }
-    int r = c + u*v;
-    int d = 3200 - h - 2*r;
-    if(d > 0) R += d;
-    goto E;
-D:
-    c = x+4*y;
-    R = 132+c;
-    B = 192+c;
-    goto E;
-E:
+    
+    //-------------------------
+    // Section E (3 MUL, 1 ADD)
+    //-------------------------
     if(R > 255) R = 255;
     if(B > 255) B = 255;
-    int G = (7*R+3*B)/10; // Keep /10 here
+    
+    int G = (R*11 + 5*B)>>4;
+    //-------------------------  
+    
     *r_out = (uint8_t)R;
     *g_out = (uint8_t)G;
     *b_out = (uint8_t)B;
