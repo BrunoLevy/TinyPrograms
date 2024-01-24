@@ -32,7 +32,7 @@ void human_shader(
         R = 420;
         B = 520;
 
-        int t = 5200 + h*8;
+        int t = 5200 + (h<<3);
         int p = (t*u)>>7;
         int q = (t*v)>>7;
         
@@ -59,10 +59,10 @@ void human_shader(
         //-------------------------------------
         // Section C, Ground (5/9 MUL, 6/9 ADD)
         //-------------------------------------
-        R = 150 + 2*v;
+        R = 150 + (v<<1);
         B = 50;
         
-        int p = h + 8*v2;
+        int p = h + (v2<<3);
         int c = 240*(-v) - p;
 
         // sky light / ambient occlusion
@@ -76,7 +76,7 @@ void human_shader(
 
         // sun/key light with soft shadow
         int r = c + u*v;
-        int d = 3200 - h - 2*r;
+        int d = 3200 - h - (r<<1);
         if( d>0 ) R += d;
         //-------------------------  
     }
@@ -85,7 +85,7 @@ void human_shader(
         //------------------------------
         // Section D, Sky (1 MUL, 2 ADD)
         //------------------------------
-        int c = x + 4*y;
+        int c = x + (y<<2);
         R = 132 + c;
         B = 192 + c;
         //-------------------------  
