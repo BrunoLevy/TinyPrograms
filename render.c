@@ -1,6 +1,8 @@
 // render.c
 // a port of Dmitry Sokolov's 70 lines raytracer
 
+#define GL_width  80
+#define GL_height 50
 #include "GL_tty.h"
 #include <math.h>
 #include <stdbool.h>
@@ -24,11 +26,8 @@ bool box_intersect(
         normal[i] = ray_direction[i] > 0 ? -1 : 1;  // no rendering from the inside ofa box
         float d  = ((ray_direction[i] > 0 ? bmin[i] : bmax[i]) - ray_origin[i]) / ray_direction[i];
         VECOP(VEC(point) = VEC(ray_origin) + VEC(ray_direction)*d);
-        if(
-            d>0 &&
-            point[(i+1)%3] > bmin[(i+1)%3] && point[(i+1)%3] < bmax[(i+1)%3] &&
-            point[(i+2)%3] > bmin[(i+2)%3] && point[(i+2)%3] < bmax[(i+2)%3]
-        ) {
+        if( d>0 && point[(i+1)%3] > bmin[(i+1)%3] && point[(i+1)%3] < bmax[(i+1)%3] &&
+                   point[(i+2)%3] > bmin[(i+2)%3] && point[(i+2)%3] < bmax[(i+2)%3] ) {
             return true;
         }
     }
@@ -61,9 +60,9 @@ bool scene_intersect(
     static struct { float color[3]; float p1[3]; float p2[3];  float radius; } O[NOBJ] = {
         { {1.,.4,.6}, {6,0,7     }, {0,0,0    }, 2   },
         { {1.,1.,.3}, {2.8, 1.1,7}, {0,0,0    }, 0.9 },
-        { {1.,1.,1.}, {5,-10,-7  }, {0,0,0    }, 8   },
-        { {.4,.7,1.}, {3,-4,11   }, {7,2,13   }, 0   },
-        { {.6,.7,.6}, {0,2,6     }, {11,2.2,16}, 0   }
+        { {2.,2.,2.}, {5,-10,-7  }, {0,0,0    }, 8   }, // color > 1 -> lamp
+        { {.4,.7,1.}, {3,-4,11   }, {7,2,13   }, 0   }, // radius 0  -> box
+        { {.6,.7,.6}, {0,2,6     }, {11,2.2,16}, 0   }  // radius 0  -> box
     };
     float nearest = 1e30;
     float p[3];
@@ -92,11 +91,43 @@ void reflect(const float* I, const float* N, float* R) {
 }
 
 float ambient_color[3] = { .5, .5, .5 };
+float light_color[3] = {1.0, 1.0, 1.0};
+float focal = 500; float azimuth = 30.*M_PI/180.;
+int nrays = 10; int maxdepth = 3;
 
 void trace(const float* eye, const float* ray, int depth, int maxdepth, float* rgb) {
     if(depth > maxdepth) { vcopy(rgb, ambient_color); return; }
     float point[3]; float normal[3]; float color[3];
     if(!scene_intersect(eye, ray, point, normal, color)) { vcopy(rgb, ambient_color); return; }
+    if(color[0] > 1.0) { vcopy(rgb, light_color); return; } // if we hit a lamp -> white
+    float color2[3], ray2[3];
+    reflect(ray, normal, ray2);
+    trace(point, ray2, depth+1, maxdepth, color2);
+    VECOP(VEC(rgb) = VEC(color) * VEC(color2));
+}
 
-    
+void render(int X, int Y, float* r, float* g, float *b) {
+    static float zero[3] = {0,0,0};
+    float rgb[3] = { 0.0, 0.0, 0.0 };
+    float ray[3] = { (float)X-(float)GL_width/2., (float)Y-(float)GL_height/2., focal};
+    float s = 1.0/sqrt(dot(ray,ray));
+    VECOP(VEC(ray) = s * VEC(ray));
+    float x =  cos(azimuth)*ray[0] + sin(azimuth)*ray[2]; // rotate the ray 30 degrees around Y-axis
+    float z = -sin(azimuth)*ray[0] + cos(azimuth)*ray[2]; 
+    ray[0] = x; ray[2] = z;
+    for(int r=0; r<nrays; ++r) {
+        float rgb_ray[3];
+        trace(zero, ray, 0, maxdepth, rgb_ray);
+        VECOP(VEC(rgb) += VEC(rgb_ray));
+    }
+    *r = rgb[0] / (float)nrays;
+    *g = rgb[1] / (float)nrays;
+    *b = rgb[2] / (float)nrays;
+}
+
+int main() {
+    GL_init();
+    GL_scan_RGBf(GL_width, GL_height, render);
+    GL_terminate();
+    return 0;
 }
