@@ -286,7 +286,7 @@ static inline void GL_scan_RGBf(
 static inline void GL_line(
     int x1, int y1, int x2, int y2, int R, int G, int B
 ) {
-    int x,y,dx,dy,sx,sy,tmp;
+    int x,y,dx,dy,sy,tmp;
 
     /* Cohen-Sutherland line clipping. */
     int code1 = code(x1,y1);

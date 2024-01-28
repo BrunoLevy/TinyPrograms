@@ -1,3 +1,6 @@
+// "pong war" (0 player breakout game) by Dmitry Sokolov
+// Inspiration: https://github.com/vnglst/pong-wars/blob/main/index.html
+
 #include <stdlib.h>
 #include <stdbool.h>
 #define GL_FPS 30
@@ -60,8 +63,11 @@ int main() {
             }
         }
 
+        /*
         for (int b=0; b<2; b++) // imprint the balls into the battlefield
             xor_field(balls[b].x[0], balls[b].x[1], b);
+        */
+        
         for (int j=0; j<48; j+=2) {
             for (int i=0; i<48; i++)
                 GL_set2pixelsIhere(
@@ -71,9 +77,30 @@ int main() {
                     );
             GL_newline();
         }
+
+        /*
         for (int b=0; b<2; b++) // clear the balls from the battlefield
             xor_field(balls[b].x[0], balls[b].x[1], b);
+        */
 
+        // Draw the balls as two diamongs
+        // How to find unicode characters:
+        // https://www.w3.org/TR/xml-entity-names/025.html
+	// https://onlineunicodetools.com/convert-unicode-to-utf8
+	// https://copypastecharacter.com/
+        for(int b=0; b<2; ++b) {
+            printf("\033[48;2;%sm",palette[1^b]);	   	   
+            printf("\033[38;2;%sm",palette[0^b]);
+            GL_gotoxy(balls[b].x[0], balls[b].x[1]/2);
+            printf("\xE2\x97\xA2");
+            printf("\xE2\x97\xA3");
+            GL_gotoxy(balls[b].x[0], balls[b].x[1]/2+1);
+            printf("\xE2\x97\xA5");
+            printf("\xE2\x97\xA4");
+
+        }
+        
+        GL_gotoxy(0,25);
         printf("\033[48;2;%sm",palette[0]); // show current score
         printf("\033[38;2;%sm",palette[1]);
         printf("%d", score);
