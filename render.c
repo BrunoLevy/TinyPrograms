@@ -75,7 +75,13 @@ bool scene_intersect(float* point, float* normal, float* color, const float* ray
     return scene_has_isect;
 }
 
-float urand() { return 2.0*((float)(random() & 65535)/65535.0) - 1.0; }
+float urand() {
+   static long int randomseed = 0;
+   randomseed = (randomseed * 1366l + 150889l) % 714025l;
+   return 2.0*((float)(randomseed & 65535)/65535.0) - 1.0;
+   // return 2.0*((float)(random() & 65535)/65535.0) - 1.0;
+}
+
 void reflect(const float* I, const float* N, float* R) {
     float w = 2.*dot(I,N);
 #if DIFFUSE == 1   
