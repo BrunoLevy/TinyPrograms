@@ -18,11 +18,11 @@ static inline float distance2(const float* p1, const float* p2) {
 
 bool box_intersect(
     const float* bmin, const float* bmax, const float* ray_origin, const float* ray_direction,
-    float* normal, float* point
+    float* point, float* normal
 ) {
     for(int i=0; i<3; ++i) { // for each coordinate axis
         if(fabs(ray_direction[i]) < 1e-3) continue; // avoid divide by 0
-        normal[0] = normal[1] = normal[2] = 0.0;  // here we test against 3 planes (instead of 6), i.e.
+        normal[0] = normal[1] = normal[2] = 0.0;    // here we test against 3 planes (instead of 6), i.e.
         normal[i] = ray_direction[i] > 0 ? -1 : 1;  // no rendering from the inside ofa box
         float d  = ((ray_direction[i] > 0 ? bmin[i] : bmax[i]) - ray_origin[i]) / ray_direction[i];
         VECOP(VEC(point) = VEC(ray_origin) + VEC(ray_direction)*d);
@@ -36,7 +36,7 @@ bool box_intersect(
 
 bool sphere_intersect(
     const float* center, float radius, const float* ray_origin, const float* ray_direction,
-    float* normal, float* point
+    float* point, float* normal
 ) {
     float V[3] = { center[0]-ray_origin[0], center[1]-ray_origin[1], center[2]-ray_origin[2] };
     float proj = dot(ray_direction, V);
@@ -88,7 +88,7 @@ float urand() { return 2.0*((float)(random() & 65535)/65535.0) - 1.0; }
 
 void reflect(const float* I, const float* N, float* R) {
     float w = 2*dot(I,N);
-    VECOP(VEC(R) = VEC(I) - w*VEC(N)); //  + urand() / 6.0);
+    VECOP(VEC(R) = VEC(I) - w*VEC(N) + urand() / 6.0);
     float l = sqrt(dot(R,R));
     VECOP(VEC(R) *= l);
 }
@@ -96,7 +96,7 @@ void reflect(const float* I, const float* N, float* R) {
 float ambient_color[3] = { .5, .5, .5 };
 float light_color[3] = {1.0, 1.0, 1.0};
 float focal = 60; float azimuth = 30.*M_PI/180.;
-int nrays = 1; /* 10 */ int maxdepth = 3;
+int nrays = 10; int maxdepth = 3;
 
 void trace(const float* eye, const float* ray, int depth, int maxdepth, float* rgb) {
     if(depth > maxdepth) { vcopy(rgb, ambient_color); return; }
