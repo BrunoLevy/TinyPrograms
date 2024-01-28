@@ -104,11 +104,11 @@ void trace(float* rgb, const float* eye, const float* ray, int depth, int maxdep
 }
 
 void render(int X, int Y, float* r, float* g, float *b) {
-    static float zero[3] = {0,0,0};
+    static float eye[3] = {0,.2,0};
     float rgb[3] = { 0.0, 0.0, 0.0 }; float ray[3] = { (float)X-(float)GL_width/2., (float)Y-(float)GL_height/2., focal};  NORMALIZE(ray);
     float x =  cos(azimuth)*ray[0] + sin(azimuth)*ray[2]; float z = -sin(azimuth)*ray[0] + cos(azimuth)*ray[2]; // rotate the ray 30 degrees around Y-axis
     ray[0] = x; ray[2] = z;
-    for(int r=0; r<nrays; ++r) { float rgb_ray[3]; trace(rgb_ray, zero, ray, 0, maxdepth); VECOP(VEC(rgb) += VEC(rgb_ray)); }
+    for(int r=0; r<nrays; ++r) { float rgb_ray[3]; trace(rgb_ray, eye, ray, 0, maxdepth); VECOP(VEC(rgb) += VEC(rgb_ray)); }
     *r = rgb[0] / (float)nrays; *g = rgb[1] / (float)nrays; *b = rgb[2] / (float)nrays;
 }
 
