@@ -21,7 +21,7 @@ bool box_intersect(
     float* normal, float* point
 ) {
     for(int i=0; i<3; ++i) { // for each coordinate axis
-        if(ray_direction[i] < 1e-3) continue; // avoid divide by 0
+        if(fabs(ray_direction[i]) < 1e-3) continue; // avoid divide by 0
         normal[0] = normal[1] = normal[2] = 0.0;  // here we test against 3 planes (instead of 6), i.e.
         normal[i] = ray_direction[i] > 0 ? -1 : 1;  // no rendering from the inside ofa box
         float d  = ((ray_direction[i] > 0 ? bmin[i] : bmax[i]) - ray_origin[i]) / ray_direction[i];
@@ -39,8 +39,8 @@ bool sphere_intersect(
     float* normal, float* point
 ) {
     float V[3] = { center[0]-ray_origin[0], center[1]-ray_origin[1], center[2]-ray_origin[2] };
-    float proj = ray_direction[0]*V[0] + ray_direction[1]*V[1] + ray_direction[2]*V[2];
-    float delta = radius*radius + proj*proj - (V[0]*V[0]+V[1]*V[1]+V[2]*V[2]);
+    float proj = dot(ray_direction, V);
+    float delta = radius*radius + proj*proj - dot(V,V);
     if(delta > 0){
         float d = proj - sqrt(delta);
         if(d > 0) {
@@ -67,6 +67,7 @@ bool scene_intersect(
     float nearest = 1e30;
     float p[3];
     float N[3];
+    bool scene_has_isect = false;
     for(int o=0; o<NOBJ; ++o) {
         bool has_isect = false;
         if(O[o].radius == 0.0) {
@@ -75,25 +76,27 @@ bool scene_intersect(
             has_isect = sphere_intersect(O[o].p1, O[o].radius, ray_origin, ray_direction, p, N);
         }
         if(has_isect) {
+            scene_has_isect = true;
             float d = distance2(ray_origin, p);
             if(d < nearest) { nearest = d; vcopy(point, p); vcopy(normal,N), vcopy(color,O[o].color); }
         }
     }
+    return scene_has_isect;
 }
 
 float urand() { return 2.0*((float)(random() & 65535)/65535.0) - 1.0; }
 
 void reflect(const float* I, const float* N, float* R) {
     float w = 2*dot(I,N);
-    VECOP(VEC(R) = VEC(I) - w*VEC(N) + urand() / 6.0);
+    VECOP(VEC(R) = VEC(I) - w*VEC(N)); //  + urand() / 6.0);
     float l = sqrt(dot(R,R));
     VECOP(VEC(R) *= l);
 }
 
 float ambient_color[3] = { .5, .5, .5 };
 float light_color[3] = {1.0, 1.0, 1.0};
-float focal = 500; float azimuth = 30.*M_PI/180.;
-int nrays = 10; int maxdepth = 3;
+float focal = 60; float azimuth = 30.*M_PI/180.;
+int nrays = 1; /* 10 */ int maxdepth = 3;
 
 void trace(const float* eye, const float* ray, int depth, int maxdepth, float* rgb) {
     if(depth > maxdepth) { vcopy(rgb, ambient_color); return; }
