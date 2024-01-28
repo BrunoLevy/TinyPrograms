@@ -17,5 +17,5 @@ softcore), you will need to install the RISC-V toolchain and use
 - Dmitry Sokolov's [TinyRaytracer](https://github.com/ssloy/tinyraytracer)
 - @a1k0n Andy Sloane's [donut.c](https://gist.github.com/a1k0n/8ea6516b4946ab36348fb61703dc3194)
 - Claire Wolf's [picorv](https://github.com/YosysHQ/picorv32)
-- Inigo Quilez's [humanshader](https://humanshader.com/) and [division-free
-version](https://www.shadertoy.com/view/XflXDs)
+- Inigo Quilez's [humanshader](https://humanshader.com/) and [division-free version](https://www.shadertoy.com/view/XflXDs)
+- Sylvain Lefebre's [collection of cool graphic effects](https://github.com/sylefeb/gfxcat)
