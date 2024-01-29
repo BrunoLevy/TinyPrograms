@@ -9,6 +9,8 @@
 */
 /* -------------------------------------------------------- */ 
 
+#define INLINE static inline 
+
 #define SHRINK 2 // Resolution determined by amount of "shrinking"
                  // 0: 320x200
                  // 1: 160x100
@@ -30,10 +32,10 @@ typedef  int64_t       wide;
 /* -------------------------------------------------------- */
 #define  FP       (16)
 #define  BASE_MAX (1<<30)
-stdi     to_fixed(stdi v)     { return v<<FP; }
-stdi     from_fixed(stdi v)   { return v>>FP; }
-stdi     fxmul(wide a,wide b) { return (stdi)((a*b)>>FP); }
-stdi     fxdiv(wide a,wide b) { if (b == 0) return (stdi)BASE_MAX; return (stdi)((a<<FP)/b); }
+INLINE stdi     to_fixed(stdi v)     { return v<<FP; }
+INLINE stdi     from_fixed(stdi v)   { return v>>FP; }
+INLINE stdi     fxmul(wide a,wide b) { return (stdi)((a*b)>>FP); }
+INLINE stdi     fxdiv(wide a,wide b) { if (b == 0) return (stdi)BASE_MAX; return (stdi)((a<<FP)/b); }
 /* -------------------------------------------------------- */
 // Square root code from https://github.com/chmike/fpsqrt/blob/master/fpsqrt.c
 // MIT License, see https://github.com/chmike/fpsqrt/blob/master/LICENSE
@@ -53,15 +55,15 @@ stdi sqrt_fixed(stdi v)
 /* -------------------------------------------------------- */
 // 3d vectors
 typedef struct { stdi x,y,z; } v3f;
-v3f   add(v3f a,v3f b)   { v3f tmp; tmp.x = a.x+b.x; tmp.y = a.y+b.y; tmp.z = a.z+b.z; return tmp; }
-v3f   sub(v3f a,v3f b)   { v3f tmp; tmp.x = a.x-b.x; tmp.y = a.y-b.y; tmp.z = a.z-b.z; return tmp; }
-v3f   mul(v3f a,stdi s)  { v3f tmp; tmp.x = fxmul(a.x,s);   tmp.y = fxmul(a.y,s);   tmp.z = fxmul(a.z,s);   return tmp; }
-v3f   vdiv(v3f a,stdi s) { v3f tmp; tmp.x = fxdiv(a.x,s);   tmp.y = fxdiv(a.y,s);   tmp.z = fxdiv(a.z,s);   return tmp; }
-v3f   vmul(v3f a,v3f b)  { v3f tmp; tmp.x = fxmul(a.x,b.x); tmp.y = fxmul(a.y,b.y); tmp.z = fxmul(a.z,b.z); return tmp; }
-stdi  dot(v3f a,v3f b)   { return fxmul(a.x,b.x) + fxmul(a.y,b.y) + fxmul(a.z,b.z); }
-stdi  length(v3f a)      { return sqrt_fixed(dot(a,a)); }
-v3f   normalize(v3f a)   { stdi l = length(a); if (l != 0) return vdiv(a,l); else return a; }
-v3f   s2v(stdi s)        { v3f tmp; tmp.x = s; tmp.y = s; tmp.z = s; return tmp; }
+INLINE v3f   add(v3f a,v3f b)   { v3f tmp; tmp.x = a.x+b.x; tmp.y = a.y+b.y; tmp.z = a.z+b.z; return tmp; }
+INLINE v3f   sub(v3f a,v3f b)   { v3f tmp; tmp.x = a.x-b.x; tmp.y = a.y-b.y; tmp.z = a.z-b.z; return tmp; }
+INLINE v3f   mul(v3f a,stdi s)  { v3f tmp; tmp.x = fxmul(a.x,s);   tmp.y = fxmul(a.y,s);   tmp.z = fxmul(a.z,s);   return tmp; }
+INLINE v3f   vdiv(v3f a,stdi s) { v3f tmp; tmp.x = fxdiv(a.x,s);   tmp.y = fxdiv(a.y,s);   tmp.z = fxdiv(a.z,s);   return tmp; }
+INLINE v3f   vmul(v3f a,v3f b)  { v3f tmp; tmp.x = fxmul(a.x,b.x); tmp.y = fxmul(a.y,b.y); tmp.z = fxmul(a.z,b.z); return tmp; }
+INLINE stdi  dot(v3f a,v3f b)   { return fxmul(a.x,b.x) + fxmul(a.y,b.y) + fxmul(a.z,b.z); }
+INLINE stdi  length(v3f a)      { return sqrt_fixed(dot(a,a)); }
+INLINE v3f   normalize(v3f a)   { stdi l = length(a); if (l != 0) return vdiv(a,l); else return a; }
+INLINE v3f   s2v(stdi s)        { v3f tmp; tmp.x = s; tmp.y = s; tmp.z = s; return tmp; }
 /* -------------------------------------------------------- */
 typedef struct {
   v3f s; // start
@@ -218,7 +220,7 @@ int main(int argc, char **argv)
   for(;;) {
       GL_scan_RGB(GL_width, GL_height, tracePixel);
       GL_swapbuffers();
-      g_time+=4;
+      g_time+=7;
   }
   return 0;
 }
