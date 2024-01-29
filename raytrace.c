@@ -41,20 +41,36 @@ INLINE stdi     fxdiv(wide a,wide b) { if (b == 0) return (stdi)BASE_MAX; return
 // MIT License, see https://github.com/chmike/fpsqrt/blob/master/LICENSE
 stdi sqrt_fixed(stdi v)
 {
+  int count = 0; // Bruno: added security check (else sometimes it goes in infinite loop, to be checked)
   if (v <= 0) { return BASE_MAX; }
   stdi b = BASE_MAX, q = 0, r = v;
-  while (b > r) { b >>= 2; }
+  while (b > r) { b >>= 2; ++count; if(count > 16) return BASE_MAX; }
   while (b > 0) {
       stdi t = q + b;
       q >>= 1;
       if ( r >= t ) { r -= t; q += b; }
       b >>= 2;
+     ++count;
+     if(count > 16) return BASE_MAX;
   }
   return q<<(stdi)(FP/2);
 }
 /* -------------------------------------------------------- */
 // 3d vectors
 typedef struct { stdi x,y,z; } v3f;
+
+
+/*
+#define RV32_FASTCODE __attribute((section(".fastcode")))
+v3f   add(v3f a,v3f b)    RV32_FASTCODE;
+v3f   sub(v3f a,v3f b)    RV32_FASTCODE;
+v3f   mul(v3f a,stdi s)   RV32_FASTCODE;
+v3f   vdiv(v3f a,stdi s)  RV32_FASTCODE;
+v3f   vmul(v3f a,v3f b)   RV32_FASTCODE;
+stdi  dot(v3f a,v3f b)    RV32_FASTCODE;
+stdi  length(v3f a)       RV32_FASTCODE;
+*/
+
 INLINE v3f   add(v3f a,v3f b)   { v3f tmp; tmp.x = a.x+b.x; tmp.y = a.y+b.y; tmp.z = a.z+b.z; return tmp; }
 INLINE v3f   sub(v3f a,v3f b)   { v3f tmp; tmp.x = a.x-b.x; tmp.y = a.y-b.y; tmp.z = a.z-b.z; return tmp; }
 INLINE v3f   mul(v3f a,stdi s)  { v3f tmp; tmp.x = fxmul(a.x,s);   tmp.y = fxmul(a.y,s);   tmp.z = fxmul(a.z,s);   return tmp; }
@@ -62,6 +78,8 @@ INLINE v3f   vdiv(v3f a,stdi s) { v3f tmp; tmp.x = fxdiv(a.x,s);   tmp.y = fxdiv
 INLINE v3f   vmul(v3f a,v3f b)  { v3f tmp; tmp.x = fxmul(a.x,b.x); tmp.y = fxmul(a.y,b.y); tmp.z = fxmul(a.z,b.z); return tmp; }
 INLINE stdi  dot(v3f a,v3f b)   { return fxmul(a.x,b.x) + fxmul(a.y,b.y) + fxmul(a.z,b.z); }
 INLINE stdi  length(v3f a)      { return sqrt_fixed(dot(a,a)); }
+
+
 INLINE v3f   normalize(v3f a)   { stdi l = length(a); if (l != 0) return vdiv(a,l); else return a; }
 INLINE v3f   s2v(stdi s)        { v3f tmp; tmp.x = s; tmp.y = s; tmp.z = s; return tmp; }
 /* -------------------------------------------------------- */
