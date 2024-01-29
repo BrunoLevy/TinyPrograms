@@ -1,5 +1,5 @@
 // "pong war" (0 player breakout game) by Dmitry Sokolov
-// Inspiration: https://github.com/vnglst/pong-wars/blob/main/index.html
+// Similar things: https://github.com/vnglst/pong-wars/blob/main/index.html
 
 #include <stdlib.h>
 #include <stdbool.h>
