@@ -1,7 +1,7 @@
 // A "doom fire" demo, by Dmitry Sokolov
 
 #define GL_width  80
-#define GL_height 30
+#define GL_height 50
 #define GL_FPS 150
 #include "GL_tty.h"
 
@@ -63,9 +63,9 @@ int main() {
             line_blur(j*GL_width, 1, GL_width);
         for (int i = 0; i<GL_width; i++)
             line_blur(i, GL_width, GL_height);
-
+       
         for (int i = 0; i< GL_width*GL_height; i++) // cool
-            if (myrand()%2 && fire[i]>0)
+            if (!(myrand()&15) && fire[i]>0)
                 fire[i]--;
 
         for (int i = 0; i<GL_width; i++) {       // add heat to the bed
