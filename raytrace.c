@@ -32,44 +32,29 @@ typedef  int64_t       wide;
 /* -------------------------------------------------------- */
 #define  FP       (16)
 #define  BASE_MAX (1<<30)
-INLINE stdi     to_fixed(stdi v)     { return v<<FP; }
-INLINE stdi     from_fixed(stdi v)   { return v>>FP; }
-INLINE stdi     fxmul(wide a,wide b) { return (stdi)((a*b)>>FP); }
-INLINE stdi     fxdiv(wide a,wide b) { if (b == 0) return (stdi)BASE_MAX; return (stdi)((a<<FP)/b); }
+INLINE stdi to_fixed(stdi v)     { return v<<FP; }
+INLINE stdi from_fixed(stdi v)   { return v>>FP; }
+INLINE stdi fxmul(wide a,wide b) { return (stdi)((a*b)>>FP); }
+INLINE stdi fxdiv(wide a,wide b) { if (b == 0) return (stdi)BASE_MAX; return (stdi)((a<<FP)/b); }
 /* -------------------------------------------------------- */
 // Square root code from https://github.com/chmike/fpsqrt/blob/master/fpsqrt.c
 // MIT License, see https://github.com/chmike/fpsqrt/blob/master/LICENSE
 stdi sqrt_fixed(stdi v)
 {
-  int count = 0; // Bruno: added security check (else sometimes it goes in infinite loop, to be checked)
   if (v <= 0) { return BASE_MAX; }
-  stdi b = BASE_MAX, q = 0, r = v;
-  while (b > r) { b >>= 2; ++count; if(count > 16) return BASE_MAX; }
+  uint32_t b = BASE_MAX, q = 0, r = v;
+  while (b > r) { b >>= 2; }
   while (b > 0) {
-      stdi t = q + b;
+      uint32_t t = q + b;
       q >>= 1;
       if ( r >= t ) { r -= t; q += b; }
       b >>= 2;
-     ++count;
-     if(count > 16) return BASE_MAX;
   }
   return q<<(stdi)(FP/2);
 }
 /* -------------------------------------------------------- */
 // 3d vectors
 typedef struct { stdi x,y,z; } v3f;
-
-
-/*
-#define RV32_FASTCODE __attribute((section(".fastcode")))
-v3f   add(v3f a,v3f b)    RV32_FASTCODE;
-v3f   sub(v3f a,v3f b)    RV32_FASTCODE;
-v3f   mul(v3f a,stdi s)   RV32_FASTCODE;
-v3f   vdiv(v3f a,stdi s)  RV32_FASTCODE;
-v3f   vmul(v3f a,v3f b)   RV32_FASTCODE;
-stdi  dot(v3f a,v3f b)    RV32_FASTCODE;
-stdi  length(v3f a)       RV32_FASTCODE;
-*/
 
 INLINE v3f   add(v3f a,v3f b)   { v3f tmp; tmp.x = a.x+b.x; tmp.y = a.y+b.y; tmp.z = a.z+b.z; return tmp; }
 INLINE v3f   sub(v3f a,v3f b)   { v3f tmp; tmp.x = a.x-b.x; tmp.y = a.y-b.y; tmp.z = a.z-b.z; return tmp; }

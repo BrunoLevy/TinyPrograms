@@ -21,15 +21,12 @@ int rng     = 31421;
 void render()
 {
 
-  int horizon = 120; // (initially << 8)
-
-  // unsigned char *pixel = framework_pixels();
-
+  int horizon = 120; 
   GL_home();
   // for each line
   for (int y=0 ; y<GL_height ; ++y) {
 
-    int offs_y = y - (horizon>>8) + 8;
+    int offs_y = (y<<1) - (horizon>>8) + 8;
 
     int ground;
     if (y < (horizon>>8)) {
@@ -45,7 +42,7 @@ void render()
 
     int clip  = ((inv_y>>4) > 70 || ground == 0) ? 1 : 0;
 
-    int curve   = (ground?((inv_y*turn)>>10):0);  // (initially >> 9)
+    int curve   = (ground?((inv_y*turn)>>10):0);  
     int u       = (pos_u<<6) + (( 0 - GL_width/2 + curve ) * inv_y) - (turn<<8);
     int v       = pos_v + inv_y;
 
@@ -61,18 +58,18 @@ void render()
       } else {
         int dctr = u < 0 ? -u : u;
         dctr     = dctr >> 6;
-        int band = ((dctr > 200 && dctr < 220) || dctr < 10) && ((v&128) ? 1 : 0);
+        int band = ((dctr > 195 && dctr < 225) || dctr < 15) && ((v&256) ? 1 : 0);
         int road = dctr < 250 ? 1 : 0; // road width
         if (band) {
           r = g = b = 200;
         } else if (road == 1) {
-          if (v&64) {
+          if (v&128) {
             r=4; g=7; b=5;
           } else {
             r=7;  g=7; b=6;
           }
         } else {
-          if (v&64) {
+          if (v&128) {
             r=21;  g=80; b=0;
           } else {
             r=26; g=60; b=0;

@@ -6,7 +6,6 @@
 #include "GL_tty.h"
 
 const char* palette[256] = {
-#define ANSIRGB(R,G,B) "\033[48;2;" #R ";"  #G ";" #B "m "
     GL_RGB(  0,  0,   0), GL_RGB(  0,   4,  4), GL_RGB(  0,  16, 20), GL_RGB(  0,  28,  36),
     GL_RGB(  0,  32, 44), GL_RGB(  0,  36, 48), GL_RGB( 60,  24, 32), GL_RGB(100,  16,  16),
     GL_RGB(132,  12, 12), GL_RGB(160,   8,  8), GL_RGB(192,   8,  8), GL_RGB(220,   4,   4),
@@ -47,6 +46,13 @@ void line_blur(int offset, int step, int nsteps) {
     }
 }
 
+int myrand() {
+   static long int randomseed = 0;
+   randomseed = (randomseed * 1366l + 150889l) % 714025l;
+   return (int)randomseed;
+}
+
+
 int main() {
     GL_init();
     for (;;) {
@@ -59,13 +65,13 @@ int main() {
             line_blur(i, GL_width, GL_height);
 
         for (int i = 0; i< GL_width*GL_height; i++) // cool
-            if (rand()%2 && fire[i]>0)
+            if (myrand()%2 && fire[i]>0)
                 fire[i]--;
 
         for (int i = 0; i<GL_width; i++) {       // add heat to the bed
             int idx = i+(GL_height-1)*GL_width;
-            if (!(rand()%32))
-                fire[idx] = 128+rand()%128;   // sparks
+            if (!(myrand()%32))
+                fire[idx] = 128+myrand()%128;   // sparks
             else
                 fire[idx] = fire[idx]<16 ? 16 : fire[idx]; // ember bed
         }
