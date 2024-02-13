@@ -1,5 +1,5 @@
 // "pong war" (0 player breakout game) by Dmitry Sokolov
-// Inspiration: https://github.com/vnglst/pong-wars/blob/main/index.html
+// Similar things: https://github.com/vnglst/pong-wars/blob/main/index.html
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -64,10 +64,9 @@ int main() {
         }
 
 
-        /*
+       
         for (int b=0; b<2; b++) // imprint the balls into the battlefield
             xor_field(balls[b].x[0], balls[b].x[1], b);
-        */
         
         for (int j=0; j<48; j+=2) {
             for (int i=0; i<48; i++)
@@ -79,16 +78,17 @@ int main() {
             GL_newline();
         }
 
-        /*
         for (int b=0; b<2; b++) // clear the balls from the battlefield
             xor_field(balls[b].x[0], balls[b].x[1], b);
-        */
 
         // Draw the balls as two hexagons (composed of triangles and black squares)
         // How to find unicode characters:
         // https://www.w3.org/TR/xml-entity-names/025.html
 	// https://onlineunicodetools.com/convert-unicode-to-utf8
 	// https://copypastecharacter.com/
+	/*
+	   // commented out because on some tty emulators, font is different and makes
+	   // it look really bad, so kept initial "block ball" instead...
         for(int b=0; b<2; ++b) {
             int x = balls[b].x[0];
             int y = balls[b].x[1];
@@ -102,7 +102,7 @@ int main() {
             GL_gotoxy(x+1,y/2+2);
             printf("\xE2\x97\xA5\xE2\x96\x88\xE2\x96\x88\xE2\x97\xA4");
         }
-
+        */
         
         GL_gotoxy(0,25);
         printf("\033[48;2;%sm",palette[0]); // show current score

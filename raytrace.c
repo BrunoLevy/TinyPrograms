@@ -32,20 +32,20 @@ typedef  int64_t       wide;
 /* -------------------------------------------------------- */
 #define  FP       (16)
 #define  BASE_MAX (1<<30)
-INLINE stdi     to_fixed(stdi v)     { return v<<FP; }
-INLINE stdi     from_fixed(stdi v)   { return v>>FP; }
-INLINE stdi     fxmul(wide a,wide b) { return (stdi)((a*b)>>FP); }
-INLINE stdi     fxdiv(wide a,wide b) { if (b == 0) return (stdi)BASE_MAX; return (stdi)((a<<FP)/b); }
+INLINE stdi to_fixed(stdi v)     { return v<<FP; }
+INLINE stdi from_fixed(stdi v)   { return v>>FP; }
+INLINE stdi fxmul(wide a,wide b) { return (stdi)((a*b)>>FP); }
+INLINE stdi fxdiv(wide a,wide b) { if (b == 0) return (stdi)BASE_MAX; return (stdi)((a<<FP)/b); }
 /* -------------------------------------------------------- */
 // Square root code from https://github.com/chmike/fpsqrt/blob/master/fpsqrt.c
 // MIT License, see https://github.com/chmike/fpsqrt/blob/master/LICENSE
 stdi sqrt_fixed(stdi v)
 {
   if (v <= 0) { return BASE_MAX; }
-  stdi b = BASE_MAX, q = 0, r = v;
+  uint32_t b = BASE_MAX, q = 0, r = v;
   while (b > r) { b >>= 2; }
   while (b > 0) {
-      stdi t = q + b;
+      uint32_t t = q + b;
       q >>= 1;
       if ( r >= t ) { r -= t; q += b; }
       b >>= 2;
@@ -55,6 +55,7 @@ stdi sqrt_fixed(stdi v)
 /* -------------------------------------------------------- */
 // 3d vectors
 typedef struct { stdi x,y,z; } v3f;
+
 INLINE v3f   add(v3f a,v3f b)   { v3f tmp; tmp.x = a.x+b.x; tmp.y = a.y+b.y; tmp.z = a.z+b.z; return tmp; }
 INLINE v3f   sub(v3f a,v3f b)   { v3f tmp; tmp.x = a.x-b.x; tmp.y = a.y-b.y; tmp.z = a.z-b.z; return tmp; }
 INLINE v3f   mul(v3f a,stdi s)  { v3f tmp; tmp.x = fxmul(a.x,s);   tmp.y = fxmul(a.y,s);   tmp.z = fxmul(a.z,s);   return tmp; }
@@ -62,6 +63,8 @@ INLINE v3f   vdiv(v3f a,stdi s) { v3f tmp; tmp.x = fxdiv(a.x,s);   tmp.y = fxdiv
 INLINE v3f   vmul(v3f a,v3f b)  { v3f tmp; tmp.x = fxmul(a.x,b.x); tmp.y = fxmul(a.y,b.y); tmp.z = fxmul(a.z,b.z); return tmp; }
 INLINE stdi  dot(v3f a,v3f b)   { return fxmul(a.x,b.x) + fxmul(a.y,b.y) + fxmul(a.z,b.z); }
 INLINE stdi  length(v3f a)      { return sqrt_fixed(dot(a,a)); }
+
+
 INLINE v3f   normalize(v3f a)   { stdi l = length(a); if (l != 0) return vdiv(a,l); else return a; }
 INLINE v3f   s2v(stdi s)        { v3f tmp; tmp.x = s; tmp.y = s; tmp.z = s; return tmp; }
 /* -------------------------------------------------------- */
