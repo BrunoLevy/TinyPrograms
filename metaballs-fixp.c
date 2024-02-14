@@ -11,8 +11,6 @@
 #define ABS(a) (((a) < 0) ? -(a) : (a))
 
 int32_t iTime = 0;
-int32_t cos24(int32_t x);
-
 // sin(x) = x * (1 + x^2 * (0.00761 * x^2 - 0.16605))
 // this formula works pretty well in the range [-pi/2, +pi/2]
 // x is fixed-point 24 bit precision
@@ -20,7 +18,7 @@ int32_t sin24(int32_t x) {
     int32_t sign;
     if (x>0) { sign = 1; } else { sign = -1; x = -x; }    //
     while (x>79060768) { x = x - 105414357; }             // reduce the argument to the acceptable range
-    if (x>26353589) { return sign*cos24(x - 26353589); }  //
+    if (x>26353589) { return sign*sin24(52707179 - x); }  //
     return sign*(x/4096)*((16777216 + (((x/4096)*(x/4096))/4096)*((((x/4096)*(x/4096))/131 - 2785856)/4096))/4096);
 }
 
@@ -35,7 +33,7 @@ int32_t cos24(int32_t x) {
 }
 
 // square root of a fixed-point number
-// stored in a 32 bit int32_teger variable, shift is the precision
+// stored in a 32 bit integer variable, shift is the precision
 int32_t sqrtfp(int32_t n, int32_t shift) {
     int32_t x;
     int32_t x_old;
