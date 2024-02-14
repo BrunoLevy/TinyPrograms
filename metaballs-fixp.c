@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
-#include <math.h>
 
 #define POW2_24 (1<<24)
 #define FPS 50
