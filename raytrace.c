@@ -11,7 +11,7 @@
 
 #define INLINE static inline 
 
-#define SHRINK 2 // Resolution determined by amount of "shrinking"
+#define SHRINK 1 // Resolution determined by amount of "shrinking"
                  // 0: 320x200
                  // 1: 160x100
                  // 2:  80x50
